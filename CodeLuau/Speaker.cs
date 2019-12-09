@@ -19,7 +19,7 @@ namespace CodeLuau
 		public List<string> Certifications { get; set; }
 		public string Employer { get; set; }
 		public int RegistrationFee { get; set; }
-		public List<CodeLuau.Session> Sessions { get; set; }
+		public List<Session> Sessions { get; set; }
 
 		/// <summary>
 		/// Register a speaker
