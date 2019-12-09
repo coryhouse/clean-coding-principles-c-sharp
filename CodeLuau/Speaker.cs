@@ -52,7 +52,7 @@ namespace CodeLuau
 			{
 				session.Approved = !SessionIsAboutOldTechnology(session);
 			}
-			bool noSessionsApproved = Sessions.Where(s => s.Approved).Count() == 0;
+			bool noSessionsApproved = !Sessions.Any(s => s.Approved);
 			if (noSessionsApproved) throw new NoSessionsApprovedException("No sessions approved");
 		}
 
@@ -70,7 +70,7 @@ namespace CodeLuau
 		{
 			//need to get just the domain from the email
 			string emailDomain = Email.Split('@').Last();
-			var ancientEmailDomains = new List<string>() { "aol.com", "hotmail.com", "prodigy.com", "compuserve.com" };
+			var ancientEmailDomains = new List<string>() { "aol.com", "prodigy.com", "compuserve.com" };
 			return (ancientEmailDomains.Contains(emailDomain) || ((Browser.Name == WebBrowser.BrowserName.InternetExplorer && Browser.MajorVersion < 9)));
 		}
 
@@ -80,7 +80,7 @@ namespace CodeLuau
 			if (HasBlog) return true;
 			if (Certifications.Count() > 3) return true;
 
-			var preferredEmployers = new List<string>() { "Pluralsight", "Microsoft", "Google", "Fog Creek Software", "37Signals", "Telerik" };
+			var preferredEmployers = new List<string>() { "Pluralsight", "Microsoft", "Google" };
 			if (preferredEmployers.Contains(Employer)) return true;
 			return false;
 		}
@@ -90,7 +90,7 @@ namespace CodeLuau
 			if (string.IsNullOrEmpty(FirstName)) throw new ArgumentNullException("First Name is required.");
 			if (string.IsNullOrEmpty(LastName)) throw new ArgumentNullException("Last Name is required.");
 			if (string.IsNullOrEmpty(Email)) throw new ArgumentNullException("Email is required.");
-			if (Sessions.Count() == 0) throw new ArgumentException("Can't register speaker with no sessions to present.");
+			if (Sessions.Count() == 0) throw new ArgumentException("Can't register a speaker without sessions.");
 		}
 
 		#region Custom Exceptions
