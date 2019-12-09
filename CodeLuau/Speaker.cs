@@ -100,7 +100,7 @@ namespace CodeLuau
 							}
 							else
 							{
-								throw new ArgumentException("Can't register speaker with no sessions to present.");
+								throw new ArgumentException("Can't register speaker without sessions.");
 							}
 
 							if (appr)
@@ -155,7 +155,7 @@ namespace CodeLuau
 						}
 						else
 						{
-							throw new SpeakerDoesntMeetRequirementsException("Speaker doesn't meet our abitrary and capricious standards.");
+							throw new SpeakerDoesntMeetRequirementsException("Speaker doesn't meet our standards.");
 						}
 
 					}
