@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace CodeLuau
@@ -25,35 +24,33 @@ namespace CodeLuau
 		/// Register a speaker
 		/// </summary>
 		/// <returns>speakerID</returns>
-		public int? Register(IRepository repository)
+		public RegisterResult Register(IRepository repository)
 		{
-			ValidateRegistration();
+			var error = ValidateRegistration();
+			if (error != null) return new RegisterResult(error);
 			int speakerId = repository.SaveSpeaker(this);
-			//if we got this far, the speaker has been accepted and is registered.
-			return speakerId;
+			return new RegisterResult(speakerId);
 		}
 
-		private void ValidateRegistration()
+		private RegisterError? ValidateRegistration()
 		{
-			ValidateData();
-
+			var error = ValidateData();
+			if (error != null) return error;
 			bool speakerAppearsQualified = AppearsExceptional() || !ObviousRedFlags();
-			if (!speakerAppearsQualified)
-			{
-				throw new SpeakerDoesntMeetRequirementsException("This speaker doesn't meet our standards.");
-			}
-
-			ApproveSessions();
+			if (!speakerAppearsQualified) return RegisterError.SpeakerDoesNotMeetStandards;
+			var approvalError = ApproveSessions();
+			if (approvalError == null) return null;
+			return approvalError;
 		}
 
-		private void ApproveSessions()
+		private RegisterError? ApproveSessions()
 		{
 			foreach (var session in Sessions)
 			{
 				session.Approved = !SessionIsAboutOldTechnology(session);
 			}
-			bool noSessionsApproved = !Sessions.Any(s => s.Approved);
-			if (noSessionsApproved) throw new NoSessionsApprovedException("No sessions approved");
+			if (Sessions.Any(s => s.Approved)) return null;
+			return RegisterError.NoSessionsApproved;
 		}
 
 		private bool SessionIsAboutOldTechnology(Session session)
@@ -85,35 +82,39 @@ namespace CodeLuau
 			return false;
 		}
 
-		private void ValidateData()
+		private RegisterError? ValidateData()
 		{
-			if (string.IsNullOrEmpty(FirstName)) throw new ArgumentNullException("First Name is required.");
-			if (string.IsNullOrEmpty(LastName)) throw new ArgumentNullException("Last Name is required.");
-			if (string.IsNullOrEmpty(Email)) throw new ArgumentNullException("Email is required.");
-			if (Sessions.Count() == 0) throw new ArgumentException("Can't register a speaker without sessions.");
+			if (string.IsNullOrEmpty(FirstName)) return RegisterError.FirstNameRequired;
+			if (string.IsNullOrEmpty(LastName)) return RegisterError.LastNameRequired;
+			if (string.IsNullOrEmpty(Email)) return RegisterError.EmailRequired;
+			if (Sessions.Count() == 0) return RegisterError.NoSessionsProvided;
+			return null;
 		}
 
-		#region Custom Exceptions
-		[Serializable]
-		public class SpeakerDoesntMeetRequirementsException : Exception
+		public enum RegisterError
 		{
-			public SpeakerDoesntMeetRequirementsException(string message)
-				: base(message)
+			FirstNameRequired,
+			LastNameRequired,
+			EmailRequired,
+			NoSessionsProvided,
+			NoSessionsApproved,
+			SpeakerDoesNotMeetStandards
+		};
+
+		public class RegisterResult
+		{
+			public RegisterResult(int speakerId)
 			{
+				this.SpeakerId = speakerId;
 			}
 
-			public SpeakerDoesntMeetRequirementsException(string format, params object[] args)
-				: base(string.Format(format, args)) { }
-		}
-
-		[Serializable]
-		public class NoSessionsApprovedException : Exception
-		{
-			public NoSessionsApprovedException(string message)
-				: base(message)
+			public RegisterResult(RegisterError? error)
 			{
+				this.Error = error;
 			}
+
+			public int? SpeakerId { get; set; }
+			public RegisterError? Error { get; set; }
 		}
-		#endregion
 	}
 }
