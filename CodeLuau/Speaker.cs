@@ -25,7 +25,7 @@ namespace CodeLuau
 		/// Register a speaker
 		/// </summary>
 		/// <returns>speakerID</returns>
-		public int? Register(IRepository repository)
+		public RegisterResponse Register(IRepository repository)
 		{
 			//lets init some vars
 			int? speakerId = null;
@@ -42,8 +42,6 @@ namespace CodeLuau
 			{
 				if (!string.IsNullOrWhiteSpace(LastName))
 				{
-
-
 					if (!string.IsNullOrWhiteSpace(Email))
 					{
 						//put list of employers in array
@@ -52,8 +50,6 @@ namespace CodeLuau
 						//DFCT #838 Jimmy 
 						//We're now requiring 3 certifications so I changed the hard coded number. Boy, programming is hard.
 						good = ((Exp > 10 || HasBlog || Certifications.Count() > 3 || emps.Contains(Employer)));
-
-
 
 						if (!good)
 						{
@@ -100,17 +96,11 @@ namespace CodeLuau
 							}
 							else
 							{
-								throw new ArgumentException("Can't register speaker without sessions.");
+								return new RegisterResponse(RegisterError.NoSessionsProvided);
 							}
 
 							if (appr)
 							{
-
-
-
-
-
-
 								//if we got this far, the speaker is approved
 								//let's go ahead and register him/her now.
 								//First, let's calculate the registration fee. 
@@ -137,7 +127,6 @@ namespace CodeLuau
 								}
 
 
-
 								//Now, save the speaker and sessions to the db.
 								try
 								{
@@ -150,53 +139,31 @@ namespace CodeLuau
 							}
 							else
 							{
-								throw new NoSessionsApprovedException("No sessions approved.");
+								return new RegisterResponse(RegisterError.NoSessionsApproved);
 							}
 						}
 						else
 						{
-							throw new SpeakerDoesntMeetRequirementsException("Speaker doesn't meet our standards.");
+							return new RegisterResponse(RegisterError.SpeakerDoesNotMeetStandards);
 						}
-
 					}
 					else
 					{
-						throw new ArgumentNullException("Email is required.");
+						return new RegisterResponse(RegisterError.EmailRequired);
 					}
 				}
 				else
 				{
-					throw new ArgumentNullException("Last name is required.");
+					return new RegisterResponse(RegisterError.LastNameRequired);
 				}
 			}
 			else
 			{
-				throw new ArgumentNullException("First Name is required");
+				return new RegisterResponse(RegisterError.FirstNameRequired);
 			}
 
 			//if we got this far, the speaker is registered.
-			return speakerId;
+			return new RegisterResponse((int)speakerId);
 		}
-
-		#region Custom Exceptions
-		public class SpeakerDoesntMeetRequirementsException : Exception
-		{
-			public SpeakerDoesntMeetRequirementsException(string message)
-				: base(message)
-			{
-			}
-
-			public SpeakerDoesntMeetRequirementsException(string format, params object[] args)
-				: base(string.Format(format, args)) { }
-		}
-
-		public class NoSessionsApprovedException : Exception
-		{
-			public NoSessionsApprovedException(string message)
-				: base(message)
-			{
-			}
-		}
-		#endregion
 	}
 }
