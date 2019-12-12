@@ -4,10 +4,10 @@ using System;
 
 namespace CodeLuau.Tests
 {
-    [TestClass]
+	[TestClass]
 	public class SpeakerTests
 	{
-		private FakeRepository repository = new FakeRepository(); 
+		private FakeRepository repository = new FakeRepository();
 
 		[TestMethod]
 		public void Register_EmptyFirstName_ReturnsFirstNameRequired()
@@ -20,7 +20,7 @@ namespace CodeLuau.Tests
 			var result = speaker.Register(repository);
 
 			//assert
-			Assert.AreEqual(Speaker.RegisterError.FirstNameRequired, result.Error);
+			Assert.AreEqual(RegisterError.FirstNameRequired, result.Error);
 		}
 
 		[TestMethod]
@@ -34,7 +34,7 @@ namespace CodeLuau.Tests
 			var result = speaker.Register(repository);
 
 			//assert
-			Assert.AreEqual(Speaker.RegisterError.LastNameRequired, result.Error);
+			Assert.AreEqual(RegisterError.LastNameRequired, result.Error);
 		}
 
 		[TestMethod]
@@ -48,7 +48,7 @@ namespace CodeLuau.Tests
 			var result = speaker.Register(repository);
 
 			//assert
-			Assert.AreEqual(Speaker.RegisterError.EmailRequired, result.Error);
+			Assert.AreEqual(RegisterError.EmailRequired, result.Error);
 		}
 
 		[TestMethod]
@@ -111,7 +111,7 @@ namespace CodeLuau.Tests
 			var result = speaker.Register(repository);
 
 			//assert
-			Assert.AreEqual(Speaker.RegisterError.NoSessionsApproved, result.Error);
+			Assert.AreEqual(RegisterError.NoSessionsApproved, result.Error);
 		}
 
 		[TestMethod]
@@ -125,11 +125,11 @@ namespace CodeLuau.Tests
 			var result = speaker.Register(repository);
 
 			//assert
-			Assert.AreEqual(Speaker.RegisterError.NoSessionsProvided, result.Error);
+			Assert.AreEqual(RegisterError.NoSessionsProvided, result.Error);
 		}
 
 		[TestMethod]
-		public void Register_DoesntAppearExceptionalAndUsingOldBrowser_ReturnsNoSessionsApproved()
+		public void Register_DoesntAppearExceptionalAndUsingOldBrowser_ReturnsSpeakerDoesNotMeetStandards()
 		{
 			//arrange
 			var speakerThatDoesntAppearExceptional = GetSpeakerThatWouldBeApproved();
@@ -140,7 +140,7 @@ namespace CodeLuau.Tests
 			var result = speakerThatDoesntAppearExceptional.Register(repository);
 
 			//assert
-			Assert.AreEqual(Speaker.RegisterError.NoSessionsApproved, result.Error);
+			Assert.AreEqual(RegisterError.SpeakerDoesNotMeetStandards, result.Error);
 		}
 
 		[TestMethod]
@@ -155,7 +155,7 @@ namespace CodeLuau.Tests
 			var result = speakerThatDoesntAppearExceptional.Register(repository);
 
 			//assert
-			Assert.AreEqual(Speaker.RegisterError.NoSessionsApproved, result.Error);
+			Assert.AreEqual(RegisterError.NoSessionsApproved, result.Error);
 		}
 
 		#region Helpers

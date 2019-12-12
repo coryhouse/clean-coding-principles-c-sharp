@@ -24,12 +24,12 @@ namespace CodeLuau
 		/// Register a speaker
 		/// </summary>
 		/// <returns>speakerID</returns>
-		public RegisterResult Register(IRepository repository)
+		public RegisterResponse Register(IRepository repository)
 		{
 			var error = ValidateRegistration();
-			if (error != null) return new RegisterResult(error);
+			if (error != null) return new RegisterResponse(error);
 			int speakerId = repository.SaveSpeaker(this);
-			return new RegisterResult(speakerId);
+			return new RegisterResponse(speakerId);
 		}
 
 		private RegisterError? ValidateRegistration()
@@ -89,32 +89,6 @@ namespace CodeLuau
 			if (string.IsNullOrEmpty(Email)) return RegisterError.EmailRequired;
 			if (Sessions.Count() == 0) return RegisterError.NoSessionsProvided;
 			return null;
-		}
-
-		public enum RegisterError
-		{
-			FirstNameRequired,
-			LastNameRequired,
-			EmailRequired,
-			NoSessionsProvided,
-			NoSessionsApproved,
-			SpeakerDoesNotMeetStandards
-		};
-
-		public class RegisterResult
-		{
-			public RegisterResult(int speakerId)
-			{
-				this.SpeakerId = speakerId;
-			}
-
-			public RegisterResult(RegisterError? error)
-			{
-				this.Error = error;
-			}
-
-			public int? SpeakerId { get; set; }
-			public RegisterError? Error { get; set; }
 		}
 	}
 }
