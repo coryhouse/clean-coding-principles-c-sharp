@@ -144,7 +144,7 @@ namespace CodeLuau.Tests
 		}
 
 		[TestMethod]
-		public void Register_DoesntAppearExceptionalAndHasAncientEmail_ReturnsNoSessionsApproved()
+		public void Register_DoesntAppearExceptionalAndHasAncientEmail_ReturnsSpeakerDoesNotMeetStandards()
 		{
 			//arrange
 			var speakerThatDoesntAppearExceptional = GetSpeakerThatWouldBeApproved();
@@ -155,7 +155,7 @@ namespace CodeLuau.Tests
 			var result = speakerThatDoesntAppearExceptional.Register(repository);
 
 			//assert
-			Assert.AreEqual(RegisterError.NoSessionsApproved, result.Error);
+			Assert.AreEqual(RegisterError.SpeakerDoesNotMeetStandards, result.Error);
 		}
 
 		#region Helpers
