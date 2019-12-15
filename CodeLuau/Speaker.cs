@@ -27,11 +27,10 @@ namespace CodeLuau
 		/// <returns>speakerID</returns>
 		public RegisterResponse Register(IRepository repository)
 		{
-			//lets init some vars
 			int? speakerId = null;
 			bool good = false;
 			bool appr = false;
-			//var nt = new List<string> {"MVC4", "Node.js", "CouchDB", "KendoUI", "Dapper", "Angular"};
+			//var nt = new List<string> {"Node.js", "Docker"};
 			var ot = new List<string>() { "Cobol", "Punch Cards", "Commodore", "VBScript" };
 
 			//DEFECT #5274 DA 12/10/2012
