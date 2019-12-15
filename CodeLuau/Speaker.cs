@@ -47,8 +47,6 @@ namespace CodeLuau
 						//put list of employers in array
 						var emps = new List<string>() { "Pluralsight", "Microsoft", "Google" };
 
-						//DFCT #838 Jimmy 
-						//We're now requiring 3 certifications so I changed the hard coded number. Boy, programming is hard.
 						good = ((Exp > 10 || HasBlog || Certifications.Count() > 3 || emps.Contains(Employer)));
 
 						if (!good)
@@ -64,8 +62,6 @@ namespace CodeLuau
 
 						if (good)
 						{
-							//DEFECT #5013 CO 1/12/2012
-							//We weren't requiring at least one session
 							if (Sessions.Count() != 0)
 							{
 								foreach (var session in Sessions)
