@@ -27,6 +27,7 @@ namespace CodeLuau
 		/// <returns>speakerID</returns>
 		public RegisterResponse Register(IRepository repository)
 		{
+			// lets init some vars
 			int? speakerId = null;
 			bool good = false;
 			bool appr = false;
