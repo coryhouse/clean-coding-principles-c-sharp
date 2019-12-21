@@ -36,7 +36,7 @@ namespace CodeLuau
 		{
 			var error = ValidateData();
 			if (error != null) return error;
-			bool speakerAppearsQualified = AppearsExceptional() || !ObviousRedFlags();
+			bool speakerAppearsQualified = AppearsExceptional() || !HasObviousRedFlags();
 			if (!speakerAppearsQualified) return RegisterError.SpeakerDoesNotMeetStandards;
 			var approvalError = ApproveSessions();
 			if (approvalError == null) return null;
@@ -55,7 +55,7 @@ namespace CodeLuau
 
 		private bool SessionIsAboutOldTechnology(Session session)
 		{
-			string[] oldTechnologies = new string[] { "Cobol", "Punch Cards", "Commodore", "VBScript" };
+			var oldTechnologies = new List<string> { "Cobol", "Punch Cards", "Commodore", "VBScript" };
 			foreach (var oldTech in oldTechnologies)
 			{
 				if (session.Title.Contains(oldTech) || session.Description.Contains(oldTech)) return true;
@@ -63,7 +63,7 @@ namespace CodeLuau
 			return false;
 		}
 
-		private bool ObviousRedFlags()
+		private bool HasObviousRedFlags()
 		{
 			//need to get just the domain from the email
 			string emailDomain = Email.Split('@').Last();
@@ -87,7 +87,7 @@ namespace CodeLuau
 			if (string.IsNullOrEmpty(FirstName)) return RegisterError.FirstNameRequired;
 			if (string.IsNullOrEmpty(LastName)) return RegisterError.LastNameRequired;
 			if (string.IsNullOrEmpty(Email)) return RegisterError.EmailRequired;
-			if (Sessions.Count() == 0) return RegisterError.NoSessionsProvided;
+			if (!Sessions.Any()) return RegisterError.NoSessionsProvided;
 			return null;
 		}
 	}
