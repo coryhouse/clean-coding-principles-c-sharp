@@ -28,22 +28,18 @@ namespace CodeLuau
 		public RegisterResponse Register(IRepository repository)
 		{
 			int? speakerId = null;
-			bool good = false;
 			bool appr = false;
 			var ot = new List<string>() { "Cobol", "Punch Cards", "Commodore", "VBScript" };
 
 			var domains = new List<string>() { "aol.com", "prodigy.com", "compuserve.com" };
 
-			if (!string.IsNullOrWhiteSpace(FirstName))
-			{
-				if (!string.IsNullOrWhiteSpace(LastName))
-				{
-					if (!string.IsNullOrWhiteSpace(Email))
-					{
-						//put list of employers in array
-						var emps = new List<string>() { "Pluralsight", "Microsoft", "Google" };
+			var error = ValidateData();
+			if (error != null) return new RegisterResponse(error);
 
-						good = (Exp > 10 || HasBlog || Certifications.Count() > 3 || emps.Contains(Employer));
+			//put list of employers in array
+			var emps = new List<string>() { "Pluralsight", "Microsoft", "Google" };
+
+						bool good = (Exp > 10 || HasBlog || Certifications.Count() > 3 || emps.Contains(Employer));
 
 						if (!good)
 						{
@@ -56,106 +52,99 @@ namespace CodeLuau
 							}
 						}
 
-						if (good)
-						{
-							if (Sessions.Count() != 0)
-							{
-								foreach (var session in Sessions)
-								{
-									//foreach (var tech in nt)
-									//{
-									//    if (session.Title.Contains(tech))
-									//    {
-									//        session.Approved = true;
-									//        break;
-									//    }
-									//}
-
-									foreach (var tech in ot)
-									{
-										if (session.Title.Contains(tech) || session.Description.Contains(tech))
-										{
-											session.Approved = false;
-											break;
-										}
-										else
-										{
-											session.Approved = true;
-											appr = true;
-										}
-									}
-								}
-							}
-							else
-							{
-								return new RegisterResponse(RegisterError.NoSessionsProvided);
-							}
-
-							if (appr)
-							{
-								//if we got this far, the speaker is approved
-								//let's go ahead and register him/her now.
-								//First, let's calculate the registration fee. 
-								//More experienced speakers pay a lower fee.
-								if (Exp <= 1)
-								{
-									RegistrationFee = 500;
-								}
-								else if (Exp >= 2 && Exp <= 3)
-								{
-									RegistrationFee = 250;
-								}
-								else if (Exp >= 4 && Exp <= 5)
-								{
-									RegistrationFee = 100;
-								}
-								else if (Exp >= 6 && Exp <= 9)
-								{
-									RegistrationFee = 50;
-								}
-								else
-								{
-									RegistrationFee = 0;
-								}
-
-
-								//Now, save the speaker and sessions to the db.
-								try
-								{
-									speakerId = repository.SaveSpeaker(this);
-								}
-								catch (Exception e)
-								{
-									//in case the db call fails 
-								}
-							}
-							else
-							{
-								return new RegisterResponse(RegisterError.NoSessionsApproved);
-							}
-						}
-						else
-						{
-							return new RegisterResponse(RegisterError.SpeakerDoesNotMeetStandards);
-						}
-					}
-					else
+			if (good)
+			{
+				if (Sessions.Count() != 0)
+				{
+					foreach (var session in Sessions)
 					{
-						return new RegisterResponse(RegisterError.EmailRequired);
+						//foreach (var tech in nt)
+						//{
+						//    if (session.Title.Contains(tech))
+						//    {
+						//        session.Approved = true;
+						//        break;
+						//    }
+						//}
+
+						foreach (var tech in ot)
+						{
+							if (session.Title.Contains(tech) || session.Description.Contains(tech))
+							{
+								session.Approved = false;
+								break;
+							}
+							else
+							{
+								session.Approved = true;
+								appr = true;
+							}
+						}
 					}
 				}
 				else
 				{
-					return new RegisterResponse(RegisterError.LastNameRequired);
+					return new RegisterResponse(RegisterError.NoSessionsProvided);
+				}
+
+				if (appr)
+				{
+					//if we got this far, the speaker is approved
+					//let's go ahead and register him/her now.
+					//First, let's calculate the registration fee. 
+					//More experienced speakers pay a lower fee.
+					if (Exp <= 1)
+					{
+						RegistrationFee = 500;
+					}
+					else if (Exp >= 2 && Exp <= 3)
+					{
+						RegistrationFee = 250;
+					}
+					else if (Exp >= 4 && Exp <= 5)
+					{
+						RegistrationFee = 100;
+					}
+					else if (Exp >= 6 && Exp <= 9)
+					{
+						RegistrationFee = 50;
+					}
+					else
+					{
+						RegistrationFee = 0;
+					}
+
+
+					//Now, save the speaker and sessions to the db.
+					try
+					{
+						speakerId = repository.SaveSpeaker(this);
+					}
+					catch (Exception e)
+					{
+						//in case the db call fails 
+					}
+				}
+				else
+				{
+					return new RegisterResponse(RegisterError.NoSessionsApproved);
 				}
 			}
 			else
 			{
-				return new RegisterResponse(RegisterError.FirstNameRequired);
+				return new RegisterResponse(RegisterError.SpeakerDoesNotMeetStandards);
 			}
-
+						
 			//if we got this far, the speaker is registered.
 			return new RegisterResponse((int)speakerId);
+		}
+
+		private RegisterError? ValidateData()
+		{
+			if (string.IsNullOrWhiteSpace(FirstName)) return RegisterError.FirstNameRequired;
+			if (string.IsNullOrWhiteSpace(LastName)) return RegisterError.LastNameRequired;
+			if (string.IsNullOrWhiteSpace(Email)) return RegisterError.EmailRequired;
+			return null;
 		}
 	}
 }
