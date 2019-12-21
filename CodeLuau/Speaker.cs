@@ -30,7 +30,6 @@ namespace CodeLuau
 			var error = ValidateRegistration();
 			if (error != null) return new RegisterResponse(error);
 			var speakerId = repository.SaveSpeaker(this);
-			//if we got this far, the speaker is registered.
 			return new RegisterResponse((int)speakerId);
 		}
 
