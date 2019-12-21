@@ -43,7 +43,7 @@ namespace CodeLuau
 						//put list of employers in array
 						var emps = new List<string>() { "Pluralsight", "Microsoft", "Google" };
 
-						good = ((Exp > 10 || HasBlog || Certifications.Count() > 3 || emps.Contains(Employer)));
+						good = (Exp > 10 || HasBlog || Certifications.Count() > 3 || emps.Contains(Employer));
 
 						if (!good)
 						{
