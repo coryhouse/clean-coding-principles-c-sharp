@@ -36,30 +36,13 @@ namespace CodeLuau
 			bool speakerAppearsQualified = AppearsExceptional() || !HasObviousRedFlags();
 			if (!speakerAppearsQualified) return new RegisterResponse(RegisterError.SpeakerDoesNotMeetStandards);
 
-			bool approved = false;
+			bool atLeastOneSessionApproved = false;
 
 			if (speakerAppearsQualified)
 			{
-				foreach (var session in Sessions)
-				{
-					var oldTopics = new List<string>() { "Cobol", "Punch Cards", "Commodore", "VBScript" };
+				atLeastOneSessionApproved = ApproveSessions();
 
-					foreach (var tech in oldTopics)
-					{
-						if (session.Title.Contains(tech) || session.Description.Contains(tech))
-						{
-							session.Approved = false;
-							break;
-						}
-						else
-						{
-							session.Approved = true;
-							approved = true;
-						}
-					}
-				}
-				
-				if (approved)
+				if (atLeastOneSessionApproved)
 				{
 					//if we got this far, the speaker is approved
 					//let's go ahead and register him/her now.
@@ -110,6 +93,27 @@ namespace CodeLuau
 			//if we got this far, the speaker is registered.
 			return new RegisterResponse((int)speakerId);
 		}
+
+		private bool ApproveSessions()
+		{
+			foreach (var session in Sessions)
+			{
+				session.Approved = !SessionIsAboutOldTechnology(session);
+			}
+
+			return Sessions.Any(s=>s.Approved);
+		}
+
+		private bool SessionIsAboutOldTechnology(Session session)
+		{
+			var oldTechnologies = new List<string> { "Cobol", "Punch Cards", "Commodore", "VBScript" };
+			foreach (var oldTech in oldTechnologies)
+			{
+				if (session.Title.Contains(oldTech) || session.Description.Contains(oldTech)) return true;
+			}
+			return false;
+		}
+
 
 		private bool HasObviousRedFlags()
 		{
