@@ -27,35 +27,22 @@ namespace CodeLuau
 		/// <returns>speakerID</returns>
 		public RegisterResponse Register(IRepository repository)
 		{
-			int? speakerId = null;
-
-			var error = ValidateData();
+			var error = ValidateRegistration();
 			if (error != null) return new RegisterResponse(error);
-
-			//put list of employers in array
-			bool speakerAppearsQualified = AppearsExceptional() || !HasObviousRedFlags();
-			if (!speakerAppearsQualified) return new RegisterResponse(RegisterError.SpeakerDoesNotMeetStandards);
-
-			if (speakerAppearsQualified)
-			{
-				bool atLeastOneSessionApproved = ApproveSessions();
-
-				if (atLeastOneSessionApproved)
-				{
-					speakerId = repository.SaveSpeaker(this);
-				}
-				else
-				{
-					return new RegisterResponse(RegisterError.NoSessionsApproved);
-				}
-			}
-			else
-			{
-				return new RegisterResponse(RegisterError.SpeakerDoesNotMeetStandards);
-			}
-
+			var speakerId = repository.SaveSpeaker(this);
 			//if we got this far, the speaker is registered.
 			return new RegisterResponse((int)speakerId);
+		}
+
+		private RegisterError? ValidateRegistration()
+		{
+			var error = ValidateData();
+			if (error != null) return error;
+			bool speakerAppearsQualified = AppearsExceptional() || !HasObviousRedFlags();
+			if (!speakerAppearsQualified) return RegisterError.SpeakerDoesNotMeetStandards;
+			bool atLeastOneSessionApproved = ApproveSessions();
+			if (!atLeastOneSessionApproved) return RegisterError.NoSessionsApproved;
+			return null;
 		}
 
 		private bool ApproveSessions()
