@@ -36,49 +36,13 @@ namespace CodeLuau
 			bool speakerAppearsQualified = AppearsExceptional() || !HasObviousRedFlags();
 			if (!speakerAppearsQualified) return new RegisterResponse(RegisterError.SpeakerDoesNotMeetStandards);
 
-			bool atLeastOneSessionApproved = false;
-
 			if (speakerAppearsQualified)
 			{
-				atLeastOneSessionApproved = ApproveSessions();
+				bool atLeastOneSessionApproved = ApproveSessions();
 
 				if (atLeastOneSessionApproved)
 				{
-					//if we got this far, the speaker is approved
-					//let's go ahead and register him/her now.
-					//First, let's calculate the registration fee. 
-					//More experienced speakers pay a lower fee.
-					if (YearsExperience <= 1)
-					{
-						RegistrationFee = 500;
-					}
-					else if (YearsExperience >= 2 && YearsExperience <= 3)
-					{
-						RegistrationFee = 250;
-					}
-					else if (YearsExperience >= 4 && YearsExperience <= 5)
-					{
-						RegistrationFee = 100;
-					}
-					else if (YearsExperience >= 6 && YearsExperience <= 9)
-					{
-						RegistrationFee = 50;
-					}
-					else
-					{
-						RegistrationFee = 0;
-					}
-
-
-					//Now, save the speaker and sessions to the db.
-					try
-					{
-						speakerId = repository.SaveSpeaker(this);
-					}
-					catch (Exception e)
-					{
-						//in case the db call fails 
-					}
+					speakerId = repository.SaveSpeaker(this);
 				}
 				else
 				{
@@ -113,7 +77,6 @@ namespace CodeLuau
 			}
 			return false;
 		}
-
 
 		private bool HasObviousRedFlags()
 		{
