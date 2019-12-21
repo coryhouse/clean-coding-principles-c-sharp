@@ -33,21 +33,8 @@ namespace CodeLuau
 			if (error != null) return new RegisterResponse(error);
 
 			//put list of employers in array
-			var preferredEmployers = new List<string>() { "Pluralsight", "Microsoft", "Google" };
-
-			bool speakerAppearsQualified = (YearsExperience > 10 || HasBlog || Certifications.Count() > 3 || preferredEmployers.Contains(Employer));
-
-			if (!speakerAppearsQualified)
-			{
-				//need to get just the domain from the email
-				string emailDomain = Email.Split('@').Last();
-				var domains = new List<string>() { "aol.com", "prodigy.com", "compuserve.com" };
-
-				if (!domains.Contains(emailDomain) && (!(Browser.Name == WebBrowser.BrowserName.InternetExplorer && Browser.MajorVersion < 9)))
-				{
-					speakerAppearsQualified = true;
-				}
-			}
+			bool speakerAppearsQualified = AppearsExceptional() || !HasObviousRedFlags();
+			if (!speakerAppearsQualified) return new RegisterResponse(RegisterError.SpeakerDoesNotMeetStandards);
 
 			bool approved = false;
 
@@ -126,9 +113,28 @@ namespace CodeLuau
 			{
 				return new RegisterResponse(RegisterError.SpeakerDoesNotMeetStandards);
 			}
-						
+
 			//if we got this far, the speaker is registered.
 			return new RegisterResponse((int)speakerId);
+		}
+
+		private bool HasObviousRedFlags()
+		{
+			//need to get just the domain from the email
+			string emailDomain = Email.Split('@').Last();
+			var ancientEmailDomains = new List<string>() { "aol.com", "prodigy.com", "compuserve.com" };
+			return (ancientEmailDomains.Contains(emailDomain) || ((Browser.Name == WebBrowser.BrowserName.InternetExplorer && Browser.MajorVersion < 9)));
+		}
+
+		private bool AppearsExceptional()
+		{
+			if (YearsExperience > 10) return true;
+			if (HasBlog) return true;
+			if (Certifications.Count() > 3) return true;
+
+			var preferredEmployers = new List<string>() { "Pluralsight", "Microsoft", "Google" };
+			if (preferredEmployers.Contains(Employer)) return true;
+			return false;
 		}
 
 		private RegisterError? ValidateData()
