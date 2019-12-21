@@ -12,7 +12,7 @@ namespace CodeLuau
 		public string FirstName { get; set; }
 		public string LastName { get; set; }
 		public string Email { get; set; }
-		public int? Exp { get; set; }
+		public int? YearsExperience { get; set; }
 		public bool HasBlog { get; set; }
 		public string BlogURL { get; set; }
 		public WebBrowser Browser { get; set; }
@@ -33,11 +33,11 @@ namespace CodeLuau
 			if (error != null) return new RegisterResponse(error);
 
 			//put list of employers in array
-			var emps = new List<string>() { "Pluralsight", "Microsoft", "Google" };
+			var preferredEmployers = new List<string>() { "Pluralsight", "Microsoft", "Google" };
 
-			bool good = (Exp > 10 || HasBlog || Certifications.Count() > 3 || emps.Contains(Employer));
+			bool speakerAppearsQualified = (YearsExperience > 10 || HasBlog || Certifications.Count() > 3 || preferredEmployers.Contains(Employer));
 
-			if (!good)
+			if (!speakerAppearsQualified)
 			{
 				//need to get just the domain from the email
 				string emailDomain = Email.Split('@').Last();
@@ -45,21 +45,21 @@ namespace CodeLuau
 
 				if (!domains.Contains(emailDomain) && (!(Browser.Name == WebBrowser.BrowserName.InternetExplorer && Browser.MajorVersion < 9)))
 				{
-					good = true;
+					speakerAppearsQualified = true;
 				}
 			}
 
-			bool appr = false;
+			bool approved = false;
 
-			if (good)
+			if (speakerAppearsQualified)
 			{
 				if (Sessions.Count() != 0)
 				{
 					foreach (var session in Sessions)
 					{
-						var ot = new List<string>() { "Cobol", "Punch Cards", "Commodore", "VBScript" };
+						var oldTopics = new List<string>() { "Cobol", "Punch Cards", "Commodore", "VBScript" };
 
-						foreach (var tech in ot)
+						foreach (var tech in oldTopics)
 						{
 							if (session.Title.Contains(tech) || session.Description.Contains(tech))
 							{
@@ -69,7 +69,7 @@ namespace CodeLuau
 							else
 							{
 								session.Approved = true;
-								appr = true;
+								approved = true;
 							}
 						}
 					}
@@ -79,25 +79,25 @@ namespace CodeLuau
 					return new RegisterResponse(RegisterError.NoSessionsProvided);
 				}
 
-				if (appr)
+				if (approved)
 				{
 					//if we got this far, the speaker is approved
 					//let's go ahead and register him/her now.
 					//First, let's calculate the registration fee. 
 					//More experienced speakers pay a lower fee.
-					if (Exp <= 1)
+					if (YearsExperience <= 1)
 					{
 						RegistrationFee = 500;
 					}
-					else if (Exp >= 2 && Exp <= 3)
+					else if (YearsExperience >= 2 && YearsExperience <= 3)
 					{
 						RegistrationFee = 250;
 					}
-					else if (Exp >= 4 && Exp <= 5)
+					else if (YearsExperience >= 4 && YearsExperience <= 5)
 					{
 						RegistrationFee = 100;
 					}
-					else if (Exp >= 6 && Exp <= 9)
+					else if (YearsExperience >= 6 && YearsExperience <= 9)
 					{
 						RegistrationFee = 50;
 					}
